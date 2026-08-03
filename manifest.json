@@ -1,0 +1,20 @@
+{
+  "name": "C Lanches",
+  "short_name": "C Lanches",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#ff4757",
+  "icons": [
+    {
+      "src": "icone.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

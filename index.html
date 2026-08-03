@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>C Lanches - Faça seu Pedido</title>
+    <!-- Link para o Manifest que faz o celular reconhecer o ícone -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="theme-color" content="#ff4757">
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-dark: #e84118;
+            --bg-color: #f7f8fa;
+            --card-bg: #ffffff;
+            --text-color: #2f3640;
+            --text-muted: #718093;
+            --success: #2ed573;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 90px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .product-info h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .product-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .product-price {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn-add {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 2px 6px rgba(255, 71, 87, 0.4);
+            cursor: pointer;
+        }
+
+        .cart-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            max-width: 568px;
+            margin: 0 auto;
+            background-color: #2f3640;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 30px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        .cart-info {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-total {
+            font-weight: 700;
+            font-size: 1.05rem;
+            background: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: flex-end;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 100%;
+            max-height: 85vh;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .modal h2 {
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+
+        .cart-items-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+        }
+
+        .btn-location {
+            background-color: #f1f2f6;
+            color: var(--text-color);
+            border: 1px dashed #ced6e0;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .location-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .cart-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .total-price {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🍔 C Lanches</h1>
+        <p>O melhor sabor da cidade na palma da sua mão</p>
+    </header>
+
+    <main id="app-container">
+        <section class="menu-section">
+            <h2>Cardápio</h2>
+            
+            <div class="category-title"><i class="fa-solid fa-utensils"></i> Lanches</div>
+            <div id="products-lanches" class="product-list"></div>
+
+            <div class="category-title"><i class="fa-solid fa-cup-straw"></i> Bebidas</div>
+            <div id="products-bebidas" class="product-list"></div>
+        </section>
+    </main>
+
+    <div id="cart-bar" class="cart-bar" onclick="openCartModal()">
+        <div class="cart-info">
+            <i class="fa-solid fa-shopping-bag"></i> 
+            <span id="cart-count">0 itens</span>
+        </div>
+        <div class="cart-total" id="cart-total-bar">R$ 0,00</div>
+    </div>
+
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeCartModal()">&times;</span>
+            <h2>Seu Pedido</h2>
+            
+            <div id="cart-items-list" class="cart-items-list"></div>
+
+            <div class="form-group">
+                <label for="client-name"><i class="fa-solid fa-user"></i> Seu Nome:</label>
+                <input type="text" id="client-name" placeholder="Digite seu nome completo">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-store"></i> Tipo de Atendimento:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="order-type" value="Retirar no Local" checked onclick="toggleLocation(false)"> Retirar no Local</label>
+                    <label><input type="radio" name="order-type" value="Entrega" onclick="toggleLocation(true)"> Entrega em Casa</label>
+                </div>
+            </div>
+
+            <div id="location-container" class="form-group" style="display: none;">
+                <label><i class="fa-solid fa-location-dot"></i> Enviar Localização:</label>
+                <button type="button" class="btn-location" onclick="getLocation()">
+                    <i class="fa-solid fa-map-pin"></i> Compartilhar Localização Atual
+                </button>
+                <p id="location-status" class="location-status">Nenhuma localização anexada.</p>
+            </div>
+
+            <div class="cart-summary">
+                <span>Total a Pagar:</span>
+                <span id="modal-total" class="total-price">R$ 0,00</span>
+            </div>
+
+            <button class="btn-whatsapp" onclick="sendToWhatsApp()">
+                <i class="fa-brands fa-whatsapp"></i> Enviar Pedido pelo WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const menuData = [
+            { id: 1, category: 'lanches', name: 'X-Burger C Lanches', description: 'Pão macio, hambúrguer artesanal 120g, queijo cheddar e maionese especial.', price: 22.00 },
+            { id: 2, category: 'lanches', name: 'X-Bacon Supremo', description: 'Pão, hambúrguer 120g, muito bacon crocante, alface, tomate e queijo.', price: 27.50 },
+            { id: 3, category: 'lanches', name: 'X-Tudo Especial', description: 'Pão, hambúrguer, presunto, queijo, ovo, bacon, alface, tomate e batata palha.', price: 32.00 },
+            { id: 4, category: 'bebidas', name: 'Coca-Cola Lata 350ml', description: 'Geladinha', price: 6.00 },
+            { id: 5, category: 'bebidas', name: 'Guaraná Antarctica Lata 350ml', description: 'Geladinho', price: 6.00 },
+            { id: 6, category: 'bebidas', name: 'Suco Natural de Laranja 500ml', description: 'Feito na hora', price: 8.00 }
+        ];
+
+        let cart = [];
+        let userLocation = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const lanchesContainer = document.getElementById('products-lanches');
+            const bebidasContainer = document.getElementById('products-bebidas');
+
+            menuData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                        <div class="product-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                    <button class="btn-add" onclick="addToCart(${item.id})">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                `;
+
+                if (item.category === 'lanches') {
+                    lanchesContainer.appendChild(card);
+                } else {
+                    bebidasContainer.appendChild(card);
+                }
+            });
+        });
+
+        function addToCart(id) {
+            const product = menuData.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            document.getElementById('cart-count').innerText = `${totalCount} ${totalCount === 1 ? 'item' : 'itens'}`;
+            document.getElementById('cart-total-bar').innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            const cartBar = document.getElementById('cart-bar');
+            if (totalCount > 0) {
+                cartBar.style.display = 'flex';
+            } else {
+                cartBar.style.display = 'none';
+                closeCartModal();
+            }
+        }
+
+        function openCartModal() {
+            if (cart.length === 0) return;
+            
+            const listContainer = document.getElementById('cart-items-list');
+            listContainer.innerHTML = '';
+
+            cart.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'cart-item-row';
+                row.innerHTML = `
+                    <span>${item.quantity}x ${item.name}</span>
+                    <span>R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('modal-total').innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            document.getElementById('cart-modal').style.display = 'flex';
+        }
+
+        function closeCartModal() {
+            document.getElementById('cart-modal').style.display = 'none';
+        }
+
+        function toggleLocation(show) {
+            const locContainer = document.getElementById('location-container');
+            locContainer.style.display = show ? 'block' : 'none';
+            if (!show) userLocation = null;
+        }
+
+        function getLocation() {
+            const statusText = document.getElementById('location-status');
+            if (!navigator.geolocation) {
+                statusText.innerText = 'Seu navegador não suporta geolocalização.';
+                return;
+            }
+
+            statusText.innerText = 'Obtendo localização exata...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    userLocation = `https://maps.google.com/?q=${lat},${lon}`;
+                    statusText.innerHTML = '<span style="color: #2ed573; font-weight: bold;">✔ Localização capturada com sucesso!</span>';
+                },
+                () => {
+                    statusText.innerText = 'Não foi possível obter sua localização. Verifique as permissões.';
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+
+        function sendToWhatsApp() {
+            const clientName = document.getElementById('client-name').value.trim();
+            if (!clientName) {
+                alert('Por favor, digite seu nome.');
+                document.getElementById('client-name').focus();
+                return;
+            }
+
+            const orderType = document.querySelector('input[name="order-type"]:checked').value;
+
+            if (orderType === 'Entrega' && !userLocation) {
+                alert('Por favor, clique no botão para anexar a sua localização.');
+                return;
+            }
+
+            let message = `*NOVO PEDIDO - C LANCHES*\n\n`;
+            message += `*Cliente:* ${clientName}\n`;
+            message += `*Tipo:* ${orderType}\n\n`;
+            message += `*Itens do Pedido:*\n`;
+
+            cart.forEach(item => {
+                message += `• ${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}\n`;
+            });
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            message += `\n*Total:* R$ ${totalPrice.toFixed(2).replace('.', ',')}\n`;
+
+            if (orderType === 'Entrega' && userLocation) {
+                message += `\n*📍 Localização de Entrega:*\n${userLocation}`;
+            }
+
+            const phoneNumber = '55 67 9838-1864'; 
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
